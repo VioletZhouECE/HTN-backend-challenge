@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+require('./db_connect');
 
 // JSON parser:
 app.use(express.json());
