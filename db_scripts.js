@@ -10,20 +10,23 @@ const sequelize = new Sequelize(process.env.DATABADE, process.env.USERNAME, proc
 });
 
 //test the connection
-const connectTest = () =>{
+const connectTest = () => {
+  console.log("Testing connection...");
   sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
+    .authenticate()
+    .then(() => {
+      console.log('Connection has been established successfully.');
+    })
+    .catch(err => {
+      console.error('Unable to connect to the database:', err);
+    });
 }
 
 //run all migrations
-const runMigration = () =>{
-  const umzug  = new Umzug({
+const runMigration = async () => {
+  console.log("Running migrations...");
+
+  const umzug = new Umzug({
     storage: "sequelize",
 
     storageOptions: {
@@ -39,7 +42,9 @@ const runMigration = () =>{
     }
   });
 
-  umzug.up();
+  await umzug.up();
+
+  console.log("All migrations have been executed!");
 }
 
 runMigration();
