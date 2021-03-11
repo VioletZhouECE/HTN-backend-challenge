@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
+  const User = sequelize.define('users', {
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
@@ -9,13 +9,13 @@ module.exports = (sequelize, DataTypes) => {
 
     createdAt: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('NOW'),
+      defaultValue: sequelize.fn('NOW'),
       allowNull: false
     },
 
     updatedAt: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('NOW'),
+      defaultValue: sequelize.fn('NOW'),
       allowNull: false
     },
 
@@ -46,7 +46,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   //set associations
-  User.belongsToMany(models.Skill, { through: "UsersSkills" });
+  User.associate = models => {
+    User.belongsToMany(models.skills, { through: "usersSkills" });
+  }
 
-  return;
+  return User;
 };
