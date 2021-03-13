@@ -25,7 +25,7 @@ const connectTest = () => {
 }
 
 //run all migrations
-const runMigration = async () => {
+const runMigrations = async () => {
   console.log("Running migrations...");
 
   const umzug = new Umzug({
@@ -74,5 +74,5 @@ const runSeeders = async () => {
   console.log("All seeders have been executed!");
 }
 
-//runMigration();
+//runMigrations();
 runSeeders();
