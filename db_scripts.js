@@ -5,8 +5,6 @@ const models = require('./models');
 const Umzug = require("umzug");
 require('dotenv').config();
 
-const endpoint = "https://gist.githubusercontent.com/Advait-M/e45603da554150067b5c4551a2bf4419/raw/3871267406e266e9020db019327c3dd7f0fdc72e/hacker-data-2021.json";
-
 // init db connection
 const sequelize = new Sequelize(process.env.DATABADE, process.env.USERNAME, process.env.PASSWORD, {
   host: process.env.HOST,
@@ -52,14 +50,29 @@ const runMigration = async () => {
 }
 
 // insert users to db 
-const insertUsers = async () =>{
-  request(endpoint, { json: true }, async (err, res, body) => {
-    if (err) { 
-      console.log(err);
-    }; 
-    await models.users.bulkCreate(body, {fields: ["id", "createdAt", "updatedAt", "company", "email", "name", "phone", "picture"]});
+const runSeeders = async () => {
+  console.log("Running seeders...");
+
+  const umzug = new Umzug({
+    storage: "sequelize",
+
+    storageOptions: {
+      sequelize: sequelize
+    },
+
+    migrations: {
+      params: [
+        sequelize.getQueryInterface(),
+        Sequelize
+      ],
+      path: path.join(__dirname, "./seeders")
+    }
   });
+
+  await umzug.up();
+
+  console.log("All seeders have been executed!");
 }
 
 //runMigration();
-insertUsers();
+runSeeders();
