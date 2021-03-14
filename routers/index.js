@@ -1,8 +1,10 @@
 const path = require('path');
+const userRoute = require('./users');
+const skillsRoute = require('./skills');
 
 module.exports = (app)=>{
 
-    app.use('/users', userRoutes);
+    app.use('/users', userRoute);
     app.use('/skills', skillsRoute);
 
     // catch-all endpoint

@@ -1,8 +1,8 @@
-const router = new Router();
+const {getSkills} = require("../controllers/skills");
+const express = require("express");
 
-//GET localhost:5000/skills/?min_frequency=5&max_frequency=10
-router.get('/skills/*', getSkils);
+const router = express.Router();
 
-router.get('/skills', wrongSkillsEndpoint);
+router.get('/', getSkills);
 
 module.exports = router;
