@@ -75,4 +75,4 @@ const runSeeders = async () => {
 }
 
 //runMigrations();
-runSeeders();
+//runSeeders();
