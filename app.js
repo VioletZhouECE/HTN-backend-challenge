@@ -1,21 +1,15 @@
 const express = require('express');
-const app = express();
 const path = require('path');
+const routes = require('./routers');
 require('./db_scripts');
+
+const app = express();
 
 // JSON parser:
 app.use(express.json());
 
-// test endpoint
-app.get('/test', (req, res) => {
-  const test_msg = { "message": "hello world" }
-  res.status(200).json(test_msg);
-});
-
-// catch-all endpoint handler
-app.use((req, res) => {
-  return res.status(404).send('wrong endpoint');
-});
+//routers
+routes(app);
 
 // global error handler
 app.use((err, req, res, next) => {
