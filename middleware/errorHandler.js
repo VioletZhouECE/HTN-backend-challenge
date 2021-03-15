@@ -1,5 +1,7 @@
 //error handler used in development
 module.exports = (err, req, res, next) => {
+    console.log(err);
+    
     if (!err.status || !err.message){
         err.status = 500;
         err.message = "Server error";
