@@ -44,6 +44,12 @@ This effectively prevents data from being inserted twice. And of course, Sequeli
 There is a many-to-many relationship between user and skill. According to the database normalization principles, 
 it is good pracitice to store skills in another table which is linked to the user table with a join table for storage optimization and maintainability, though having more tables would result in more table joins and slower processing sometimes. 
 
+# Future improvements
+1. Use joi to do more validation on requests and gives more detailed error messages for invalid requests. 
+2. Write some test cases, as testability is important.
+3. Some performance optimization ideas: 
+   1. As most endpoints require joining users table with the skills table, we can store the joined table as a view. This makes most of the queries faster as we can read from the view without performing the join every time.
+   2. As users do not gain, lose skills very often, we can consider adding the frequency column to the skills table and have it updated everytime we update user's skills. This will make GET localhost:3000/skills/?min_frequency=5&max_frequency=10 faster as we don't need to run aggregation every time.
 
 # API documentation
 <strong> Get all users </strong> <br>
