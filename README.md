@@ -3,7 +3,7 @@ Hack the North organizer application backend coding challenge.
 
 # How to run the code
 Prerequisites: NodeJS and Postgres.
-1. Clone the code and install all the packages (npm install).
+1. Clone the code and install all the packages (run "npm install").
 2. Create a new Postgres database. You can also just use the default database: "postgres".
 3. Create a .env file with the following keys:
    ```
@@ -13,8 +13,9 @@ Prerequisites: NodeJS and Postgres.
    HOST="<host>"
    ```
    An example file (.example_env) is provided.
-4. npm start.<br> 
-   If the setup was successful, the following message should be printed out:
+4. Run "npm start".<br> 
+   This will create tables in the database, make a http request to fetch the latest user data and insert into the tables, and start the server.
+   The following message should be printed out:
    ```
    Connecting to postgres...
    Connection has been established successfully!
@@ -24,7 +25,8 @@ Prerequisites: NodeJS and Postgres.
    All seeders have been executed!
    listening on port 3000
    ```
-
+   When "npm start" is executed the second time, no database operation will be performed as sequelize is aware that tables have alreay been created and data has already been inserted, so we can use "npm start" to restart the server anytime without worrying about duplicate database setup being performed.
+   
 # Tech stack 
 * NodeJS/Express
 * SequelizeJS (ORM)
@@ -36,20 +38,20 @@ Prerequisites: NodeJS and Postgres.
 The request will be forwarded to the corresponding controller (app.js -> router -> controller). The controller is responsible for invoking services to process the request and returning a response. All the business logic is located in services/ so that the main logic of the app is decoupled from the http requests and responses. This makes the code more maintainable and testable.
 
 <strong> Why did I choose to use Sequelize ORM instead of just writing SQL? </strong> <br>
-The main reason is that Sequelize supports migrations and seeders which makes setting up the database on a new machine very easy.
+The main reason is that Sequelize supports migrations and seeders. This makes setting up the database on a new machine very easy.
 Sequelize guarantees that migrations (to construct database tables) and seeders (to insert default data) are only executed the first time the server starts.
-This effectively prevents data from being inserted twice. And of course, Sequelize provides some awesome DAO methods simplifies DB operations (most of the time).
+This effectively prevents data from being inserted twice. And of course, Sequelize provides some awesome DAO methods which simplify DB operations (most of the time).
 
-<strong> Why are skilled stored in its own table? </strong> <br>
+<strong> Why are skills stored in its own table? </strong> <br>
 There is a many-to-many relationship between user and skill. According to the database normalization principles, 
-it is good pracitice to store skills in another table which is linked to the user table with a join table for storage optimization and maintainability, though having more tables would result in more table joins and slower processing sometimes. 
+it is a good practice to store skills in another table which is linked to the user table by a join table for storage optimization and maintainability, though having more tables would result in more table joins and slower processing sometimes. 
 
 # Future improvements
 1. Use joi to do more validation on requests and gives more detailed error messages for invalid requests. 
 2. Write some test cases, as testability is important.
 3. Some performance optimization ideas: 
-   1. As most endpoints require joining users table with the skills table, we can store the joined table as a view. This makes most of the queries faster as we can read from the view without performing the join every time.
-   2. As users do not gain, lose skills very often, we can consider adding the frequency column to the skills table and have it updated everytime we update user's skills. This will make GET localhost:3000/skills/?min_frequency=5&max_frequency=10 faster as we don't need to run aggregation every time.
+   1. As most endpoints require joining the users table with the skills table, we can store the joined table as a view. This makes most of the queries faster as we can read from the view without performing the table join every time.
+   2. As users do not gain, lose skills very often, we can consider adding the frequency column to the skills table and update it everytime we update the user's skills. This will make GET localhost:3000/skills/?min_frequency=5&max_frequency=10 faster as we don't need to run aggregation every time.
 
 # API documentation
 <strong> Get all users </strong> <br>
