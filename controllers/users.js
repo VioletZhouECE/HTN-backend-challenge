@@ -10,6 +10,10 @@ exports.getAllUsers = async (req, res, next) => {
         }
         res.status(200).json(response);
     } catch (err) {
+        if (!err.status || !err.message){
+            err.status = 500;
+            err.message = "Cannot get all users.";
+        }
         next(err);
     }
 }
@@ -34,6 +38,10 @@ exports.getUserById = async (req, res, next) => {
         }
         res.status(200).json(response);
     } catch (err) {
+        if (!err.status || !err.message){
+            err.status = 500;
+            err.message = `Cannot get the user with id ${id}.`;
+        }
         next(err);
     }
 }
@@ -65,6 +73,10 @@ exports.updateUser = async (req, res, next) => {
 
         res.status(200).json(response);
     } catch (err) {
+        if (!err.status || !err.message){
+            err.status = 500;
+            err.message = "Cannot update user.";
+        }
         next(err);
     }
 }

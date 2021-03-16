@@ -4,6 +4,9 @@ const Umzug = require("umzug");
 require('dotenv').config();
 
 const setup = async() => {
+  if (!(process.env.DATABASE && process.env.USERNAME && process.env.HOST)){
+    throw new Error("Please create a .env file with the following keys: DATABADE, USERNAME, PASSWORD, HOST");
+  }
   const sequelize = await connect;
   await runMigrations(sequelize);
   await runSeeders(sequelize);

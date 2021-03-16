@@ -14,6 +14,10 @@ exports.getSkills = async (req, res, next) => {
 
         res.status(200).json(response);
     } catch (err) {
+        if (!err.status || !err.message){
+            err.status = 500;
+            err.message = "Cannot get skills";
+        }
         next(err);
     }
 }
