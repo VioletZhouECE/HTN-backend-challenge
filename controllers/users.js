@@ -94,6 +94,7 @@ exports.getUserById = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
     try {
         const { id } = req.params;
+
         //validate that id is a valid uuid4
         const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
         if (!id.match(regex)) {
@@ -101,22 +102,23 @@ exports.updateUser = async (req, res, next) => {
             err.status = 422;
             throw err;
         }
+
+        //to-do: make sure that the req payload is well-formated
         const payload = req.body;
+
+        //fetch the user
+        let user = await models.users.findOne({
+            where: { 'id': id },
+            include: [{ model: models.skills}]
+        });   
 
         //update skills
         //for test: curl -X PUT http://localhost:3000/users/a6b46a7e-7d4d-4770-b68b-474ee99b4b3f -H "Content-Type: application/json" -d '{"skills":[{"name":"JS","rating":4}]}'
         if (payload.skills) {
-            //to-do: make sure that the req payload is well-formated
             const newSkills = payload.skills;
 
-            //fetch the old skills
-            let user = await models.users.findOne({
-                where: { 'id': id },
-                include: [{ model: models.skills }]
-            });
-
             //update or add new skills asynchronously 
-            newSkills.forEach(async (newSkill) => {
+            await Promise.all(newSkills.forEach(async (newSkill) => {
                 //get the old skill instance
                 const skillInstance = user.skills.filter(skill => skill.name == newSkill.name);
 
@@ -143,18 +145,21 @@ exports.updateUser = async (req, res, next) => {
                     //associate user with the new skill
                     await user.addSkill(skill, { through: { rating: newSkill.rating } });
                 }
-            });
+            }));
+        }
+
+        //update other fields
+        await user.update(payload);
 
         //fetch the new user data 
-        userData = await models.users.findOne({
+        const updatedUser = await models.users.findOne({
             where: { 'id': id },
             attributes: ["company", "email", "name", "phone", "picture"],
             include: [{ model: models.skills, attributes: ['name'], through: { attributes: ["rating"] } }]
         });
-        }
 
         //flatten the skills array
-        const skills = userData.skills.map(skill => {
+        const skills = updatedUser.skills.map(skill => {
             return {
                 "name": skill.name,
                 "rating": skill.usersSkills.rating
@@ -162,12 +167,12 @@ exports.updateUser = async (req, res, next) => {
         });
 
         user = {
-            "name": userInfo.name,
-            "email": userInfo.email,
+            "name": updatedUser.name,
+            "email": updatedUser.email,
             "skills": skills,
-            "company": userInfo.company,
-            "phone": userInfo.phone,
-            "picture": userInfo.picture
+            "company": updatedUser.company,
+            "phone": updatedUser.phone,
+            "picture": updatedUser.picture
         }
 
         const response = {
