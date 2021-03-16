@@ -1,38 +1,16 @@
 const models = require('../models');
+const UserService = require("../services/users");
 
 exports.getAllUsers = async (req, res, next) => {
     try {
-        //eager loading to fetch user info from all tables
-        const usersData = await models.users.findAll({
-            attributes: ["company", "email", "name", "phone", "picture"],
-            include: [{ model: models.skills, attributes: ['name'], through: { attributes: ["rating"] } }]
-        });
-
-        const users = usersData.map(user => {
-            //flatten the skills array
-            const skills = user.skills.map(skill => {
-                return {
-                    "name": skill.name,
-                    "rating": skill.usersSkills.rating
-                }
-            });
-
-            return {
-                "name": user.name,
-                "email": user.email,
-                "skills": skills,
-                "company": user.company,
-                "phone": user.phone,
-                "picture": user.picture
-            }
-        })
-
+        const userServiceInstance = new UserService();
+        const users = await userServiceInstance.getAllUsers();
         const response = {
             "users": users
         }
 
         res.status(200).json(response);
-    } catch {
+    } catch (err){
         next(err);
     }
 }
