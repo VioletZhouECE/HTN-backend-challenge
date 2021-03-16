@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const setup = async() => {
   const sequelize = await connect;
-  console.log(sequelize);
   await runMigrations(sequelize);
   await runSeeders(sequelize);
 }
@@ -18,7 +17,8 @@ const connect = new Promise((resolve, reject) => {
   // init db connection
   const sequelize = new Sequelize(process.env.DATABADE, process.env.USERNAME, process.env.PASSWORD, {
     host: process.env.HOST,
-    dialect: 'postgres'
+    dialect: 'postgres',
+    logging: false
   });
 
   //test connection
