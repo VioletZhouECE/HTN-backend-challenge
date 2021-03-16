@@ -1,5 +1,29 @@
 # Overview
-Hack the North organizer application backend coding challenge
+Hack the North organizer application backend coding challenge.
+
+# How to run the code
+Prerequisites: NodeJS and Postgres.
+1. Clone the code and install all the packages (npm install).
+2. Create a new Postgres database. You can also just use the default database: "postgres".
+3. Create a .env file with the following keys:
+   ```
+   DATABASE="<database_name>"
+   USERNAME="<username>"
+   PASSWORD="<password>"
+   HOST="<host>"
+   ```
+   An example file (.example_env) is provided.
+4. npm start.<br> 
+   If the setup was successful, the following message should be printed out:
+   ```
+   Connecting to postgres...
+   Connection has been established successfully!
+   Running migrations...
+   All migrations have been executed!
+   Running seeders...
+   All seeders have been executed!
+   listening on port 3000
+   ```
 
 # Tech stack 
 * NodeJS/Express
@@ -7,10 +31,19 @@ Hack the North organizer application backend coding challenge
 * Postgres
 * Other dependencies: request, umzug (to run sequelize cli commands programmatically), dotenv, cors
 
-**Why did I choose to use Sequelize ORM instead of just writing SQL?** <br>
+# Implementation details 
+<strong> How is an incoming request handled? </strong> <br>
+The request will be forwarded to the corresponding controller (app.js -> router -> controller). The controller is responsible for invoking services to process the request and returning a response. All the business logic is located in services/ so that the main logic of the app is decoupled from the http requests and responses. This makes the code more maintainable and testable.
+
+<strong> Why did I choose to use Sequelize ORM instead of just writing SQL? </strong> <br>
 The main reason is that Sequelize supports migrations and seeders which makes setting up the database on a new machine very easy.
 Sequelize guarantees that migrations (to construct database tables) and seeders (to insert default data) are only executed the first time the server starts.
 This effectively prevents data from being inserted twice. And of course, Sequelize provides some awesome DAO methods simplifies DB operations (most of the time).
+
+<strong> Why are skilled stored in its own table? </strong> <br>
+There is a many-to-many relationship between user and skill. According to the database normalization principles, 
+it is good pracitice to store skills in another table which is linked to the user table with a join table for storage optimization and maintainability, though having more tables would result in more table joins and slower processing sometimes. 
+
 
 # API documentation
 <strong> Get all users </strong> <br>
