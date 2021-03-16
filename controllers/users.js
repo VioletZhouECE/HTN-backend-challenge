@@ -5,10 +5,10 @@ exports.getAllUsers = async (req, res, next) => {
     try {
         const userServiceInstance = new UserService();
         const users = await userServiceInstance.getAllUsers();
+
         const response = {
             "users": users
         }
-
         res.status(200).json(response);
     } catch (err){
         next(err);
@@ -27,40 +27,12 @@ exports.getUserById = async (req, res, next) => {
             throw err;
         }
 
-        //eager loading to fetch user info from all tables
-        const userData = await models.users.findOne({
-            where: { 'id': id },
-            attributes: ["company", "email", "name", "phone", "picture"],
-            include: [{ model: models.skills, attributes: ['name'], through: { attributes: ["rating"] } }]
-        });
-
-        if (!userData) {
-            let err = new Error(`Could not find a user with id: ${id}`);
-            err.status = 500;
-            throw err;
-        }
-
-        //flatten the skills array
-        const skills = userData.skills.map(skill => {
-            return {
-                "name": skill.name,
-                "rating": skill.usersSkills.rating
-            }
-        });
-
-        const user = {
-            "name": userData.name,
-            "email": userData.email,
-            "skills": skills,
-            "company": userData.company,
-            "phone": userData.phone,
-            "picture": userData.picture
-        }
+        const userServiceInstance = new UserService();
+        const user = await userServiceInstance.getUserById(id);
 
         const response = {
             "user": user
         }
-
         res.status(200).json(response);
     } catch (err) {
         next(err);
