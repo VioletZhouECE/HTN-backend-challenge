@@ -79,6 +79,64 @@ class UserService {
             throw err;
         }
     }
+
+    //update user
+    async updateUser(id, payload) {
+        try {
+            //fetch the user
+            let user = await models.users.findOne({
+                where: { 'id': id },
+                include: [{ model: models.skills }]
+            });
+
+            if (payload.skills) {
+                await this.updateUserSkills(user, payload.skills);
+            }
+
+            //update other fields
+            await user.update(payload);
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    //update or add user skills
+    async updateUserSkills(user, newSkills) {
+        try {
+            //update or add new skills asynchronously 
+            await Promise.all(newSkills.map(async (newSkill) => {
+                //get the old skill instance
+                const skillInstance = user.skills.filter(skill => skill.name == newSkill.name);
+
+                //if the user already has the skill, update its rating if necessary
+                if (skillInstance.length > 0) {
+                    if (skillInstance[0].usersSkills.rating != newSkill.rating) {
+                        await skillInstance[0].usersSkills.update({ rating: newSkill.rating });
+                    }
+                    //if the user does not has the skill, associate the user with the new skill
+                } else {
+                    //to-do: put the following code to SkillService: getSkillNameFromId
+                    //get the skillId from the skill name 
+                    const skill = await this.skillModel.findOne({
+                        where: { 'name': newSkill.name },
+                        attributes: ["id"]
+                    });
+
+                    //throw an error if skill doesn't exist
+                    if (!skill) {
+                        let err = new Error(`The skill: ${newSkill.name} does not exist in our database.`);
+                        err.status = 500;
+                        throw err;
+                    };
+
+                    //associate user with the new skill
+                    await user.addSkill(skill, { through: { rating: newSkill.rating } });
+                }
+            }));
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = UserService;
