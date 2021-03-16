@@ -1,4 +1,3 @@
-const models = require('../models');
 const UserService = require("../services/users");
 
 exports.getAllUsers = async (req, res, next) => {
@@ -10,7 +9,7 @@ exports.getAllUsers = async (req, res, next) => {
             "users": users
         }
         res.status(200).json(response);
-    } catch (err){
+    } catch (err) {
         next(err);
     }
 }
@@ -56,76 +55,12 @@ exports.updateUser = async (req, res, next) => {
         //to-do: make sure that the req payload is well-formated
         const payload = req.body;
 
-        //fetch the user
-        let user = await models.users.findOne({
-            where: { 'id': id },
-            include: [{ model: models.skills}]
-        });   
-
-        //update skills
-        if (payload.skills) {
-            const newSkills = payload.skills;
-
-            //update or add new skills asynchronously 
-            await Promise.all(newSkills.map(async (newSkill) => {
-                //get the old skill instance
-                const skillInstance = user.skills.filter(skill => skill.name == newSkill.name);
-
-                //if the user already has the skill, update its rating if necessary
-                if (skillInstance.length > 0) {
-                    if (skillInstance[0].usersSkills.rating != newSkill.rating) {
-                        await skillInstance[0].usersSkills.update({ rating: newSkill.rating });
-                    }
-                    //if the user does not has the skill, associate the user with the new skill
-                } else {
-                    //get the skillId from the skill name 
-                    const skill = await models.skills.findOne({
-                        where: { 'name': newSkill.name },
-                        attributes: ["id"]
-                    });
-
-                    //throw an error if skill doesn't exist
-                    if (!skill) {
-                        let err = new Error(`The skill: ${newSkill.name} does not exist in our database.`);
-                        err.status = 500;
-                        throw err;
-                    };
-
-                    //associate user with the new skill
-                    await user.addSkill(skill, { through: { rating: newSkill.rating } });
-                }
-            }));
-        }
-
-        //update other fields
-        await user.update(payload);
-
-        //fetch the new user data 
-        const updatedUser = await models.users.findOne({
-            where: { 'id': id },
-            attributes: ["company", "email", "name", "phone", "picture"],
-            include: [{ model: models.skills, attributes: ['name'], through: { attributes: ["rating"] } }]
-        });
-
-        //flatten the skills array
-        const skills = updatedUser.skills.map(skill => {
-            return {
-                "name": skill.name,
-                "rating": skill.usersSkills.rating
-            }
-        });
-
-        user = {
-            "name": updatedUser.name,
-            "email": updatedUser.email,
-            "skills": skills,
-            "company": updatedUser.company,
-            "phone": updatedUser.phone,
-            "picture": updatedUser.picture
-        }
+        const userServiceInstance = new UserService();
+        await userServiceInstance.updateUser(id, payload);
+        const updatedUser = await userServiceInstance.getUserById(id);
 
         const response = {
-            "user": user
+            "user": updatedUser
         }
 
         res.status(200).json(response);
