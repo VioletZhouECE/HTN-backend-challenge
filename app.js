@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const routes = require('./routers');
 const errorHandler = require('./middleware/errorHandler');
-require('./db_scripts');
+require('./setup');
 
 const app = express();
 

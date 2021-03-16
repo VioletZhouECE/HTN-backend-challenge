@@ -1,0 +1,4 @@
+DATABASE="<database_name>"
+USERNAME="<username>"
+PASSWORD="<password>"
+HOST="<host>"

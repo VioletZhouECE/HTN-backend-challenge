@@ -1,6 +1,6 @@
 const app = require('./app.js');
 const http = require('http');
-const setup = require("./db_scripts");
+const setup = require("./setup");
 
 //connect to and setup db
 setup().then(() => {
