@@ -113,12 +113,11 @@ exports.updateUser = async (req, res, next) => {
         });   
 
         //update skills
-        //for test: curl -X PUT http://localhost:3000/users/a6b46a7e-7d4d-4770-b68b-474ee99b4b3f -H "Content-Type: application/json" -d '{"skills":[{"name":"JS","rating":4}]}'
         if (payload.skills) {
             const newSkills = payload.skills;
 
             //update or add new skills asynchronously 
-            await Promise.all(newSkills.forEach(async (newSkill) => {
+            await Promise.all(newSkills.map(async (newSkill) => {
                 //get the old skill instance
                 const skillInstance = user.skills.filter(skill => skill.name == newSkill.name);
 
